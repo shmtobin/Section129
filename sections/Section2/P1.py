@@ -1,6 +1,10 @@
+# Task 1: Convex hull in 2D
+
+
 # Want to give credit to "Brian Faure" on Youtube whose procedure I effectively copied, but learned more from this than just 
 # yelling at ChatGPT to do it :)
-# Part a)
+# Part 1) Build Algorithsm
+# Part a) Visualize
 import matplotlib.pyplot as plt
 import numpy as np
 import warnings
@@ -107,8 +111,19 @@ scatter_plot(coords)
 # Graham Scan
 
 graham_scan(coords, False)
-print("Gra", hull)  # Now hull is properly printed
+print("2D Graham Scan Hull:", hull)  # Now hull is properly printed
 
 
 
+# Part 2: Time complexity of a point cloud
 
+# import numpy as np
+
+
+# def gen_pt_cloud(n):
+#     return np.random.uniform(0, 1, size=(n, 2))
+
+# # Part a)
+# n=100
+# points = gen_pt_cloud(n)
+# print(points)
