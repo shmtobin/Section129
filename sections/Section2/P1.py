@@ -4,6 +4,7 @@
 # Want to give credit to "Brian Faure" on Youtube whose procedure I effectively copied, 
 # and the good folks over at OpenAI whose chatbot assisted considerably.
 # Part 1) Build Algorithsm
+
 # Part a) Visualize
 import matplotlib.pyplot as plt
 import numpy as np
@@ -26,22 +27,26 @@ def scatter_plot(coords, convex_hull=None):
             plt.plot((c0[0], c1[0]), (c0[1],c1[1], 'r'))
     plt.show()
 
+# determining polar angle for quick sort for graham scan
 def polar_angle(p0,p1=None):
     if p1==None: p1=anchor
     x_span=p0[0]-p0[0]
     y_span=p0[1]-p1[1]
     return atan2(y_span, x_span)
 
+# calculates distance between points for quicksort for graham scan
 def distance(p0, p1=None):
     if p1 is None: p1 = anchor
     x_span=p0[0]-p0[0]
     y_span=p0[1]-p1[1]
     return y_span**2 + x_span**2
 
+# calculates determinant for all algorithms
 def det(p1, p2, p3):
     return (p2[0]-p1[0])*(p3[1]-p1[1]) \
             - (p2[1]-p1[1])*(p3[0]-p1[0])
 
+# sorts the points for graham scan algorithm
 def quicksort(a):
     if len(a)<=1: return a
     smaller, equal, larger = [], [], []
@@ -55,6 +60,7 @@ def quicksort(a):
             +sorted(equal, key=distance) \
             + quicksort(larger)
 
+# good ol' 2D graham scan
 def graham_scan(points, show_progress=False):
     global anchor
 
@@ -64,18 +70,18 @@ def graham_scan(points, show_progress=False):
             min_idx = i
         if y == points[min_idx][1] and x < points[min_idx][0]:
             min_idx = i
-    anchor = tuple(points[min_idx])  # Convert NumPy array to tuple
+    anchor = tuple(points[min_idx]) 
     sorted_pts = quicksort(points)
     
-    # Convert all elements to tuples to avoid NumPy-related issues
+    # converting to tuples to avoid np issues
     sorted_pts = [tuple(pt) for pt in sorted_pts]
 
-    del sorted_pts[sorted_pts.index(anchor)]  # This now works
+    del sorted_pts[sorted_pts.index(anchor)]
 
     hull = [anchor, sorted_pts[0]]
     for s in sorted_pts[1:]:
         while len(hull) >= 2 and det(hull[-2], hull[-1], s) <= 0:
-            del hull[-1]  # Backtrace
+            del hull[-1]  # backtrack when concave
         hull.append(s)
 
     if show_progress:
@@ -83,6 +89,7 @@ def graham_scan(points, show_progress=False):
     
     return hull
 
+# jarvis march algorithm
 def jarvis(points):
     n=len(points)
 
@@ -106,6 +113,7 @@ def jarvis(points):
 
     return hull
 
+# quickhull algorithm
 def quickhull(points):
     def find_farthest_point(p1, p2, points):
         farthest_point = None
@@ -170,6 +178,7 @@ def monotone_chain(points):
     # Combine lower and upper hull, removing the last point of each half because it's repeated
     return lower_hull[:-1] + upper_hull[:-1]
 
+# plot scatter plot including hull algorithms
 def scatter_plot_with_hulls(points, hulls):
     xs, ys = zip(*points)
     plt.scatter(xs, ys, label="Points", color="black")
@@ -183,17 +192,34 @@ def scatter_plot_with_hulls(points, hulls):
     plt.legend()
     plt.show()
 
-def gen_pt_cloud(n, seed):
+# generates n uniformly random coordinates between 
+# an upper and lower bound for a given seed
+def gen_pt_cloud(n, lower, upper, seed):
     np.random.seed(seed)
-    return np.random.uniform(0, 1, size=(n, 2))
+    return np.random.uniform(lower, upper, size=(n, 2))
 
+# generates n gaussian coordinates for a given seed
+def gauss_pt_cloud(n, seed):
+    np.random.seed(seed)
+    return np.random.normal(loc=0, scale=1, size=(n, 2))
+
+# measures the time it takes for each of hte algorithms
 def measure_execution_time(points, algorithms):
     times = {}
-    for name, algo in algorithms.items():
-        start_time = time.time()
-        algo(points)
-        end_time = time.time()
-        times[name] = end_time - start_time
+    for name, algorithm in algorithms.items():
+        start_time = time.perf_counter()  # Use high-resolution timer
+        try:
+            algorithm(points)  # Run the algorithm on the point cloud
+        except Exception as e:
+            print(f"Error with {name}: {e}")
+            times[name] = np.nan  # In case of error, record NaN
+            continue
+        end_time = time.perf_counter()
+        elapsed_time = end_time - start_time
+        if elapsed_time < 0:
+            print(f"Warning: Negative execution time for {name}!")
+            elapsed_time = 0  # Prevent negative times, set to 0
+        times[name] = elapsed_time
     return times
 
 # reading in the file
@@ -217,12 +243,10 @@ for line in data:
         continue
 
 coords = np.array(list(zip(x, y)))
-hull = graham_scan(coords, False)  # Call the function and store the result
-
-# scatter_plot(coords)
+# visualization for a)
+scatter_plot(coords)
 # Part b)
-
-# Graham Scan
+# Applies all algorithms defined above
 hulls = [graham_scan(coords, False), jarvis(coords), quickhull(coords), monotone_chain(coords)]
 print("2D Graham Scan Hull:", hulls[0]) 
 print("Jarvis March Hull:", hulls[1])
@@ -230,19 +254,21 @@ print("Quickhull hull:", hulls[2])
 print("Monotone chain hull:", hulls[3])
 
 # Part c)
+# visualization for c, applies scatter plot
+# with hull function defined above
 scatter_plot_with_hulls(coords, hulls)
 
 
 # Part 2: Time complexity of a point cloud
 
 # Part a)
-# n=10
-# points = gen_pt_cloud(n)
-# print(points)
+n=10
+points = gauss_pt_cloud(n, 42)
+print(points)
 
 # Part b)
 n_values = [10, 50, 100, 200, 400, 800, 1000]
-num_trials = 5  # Number of trials per n value
+num_trials = 5 
 algorithms = {
     "Graham Scan": graham_scan,
     "Jarvis March": jarvis,
@@ -250,6 +276,7 @@ algorithms = {
     "Monotone Chain": monotone_chain
 }
 
+# Plots for a)
 # Prepare a dictionary for storing runtime results for each algorithm
 results = {name: [] for name in algorithms.keys()}
 
@@ -257,11 +284,11 @@ results = {name: [] for name in algorithms.keys()}
 for n in n_values:
     trial_times = {name: [] for name in algorithms.keys()}
     
-    # Run multiple trials for each n
+# Testing for 0 to 1, varying n
     for trial in range(num_trials):
         # Set a different random seed for each trial
         seed_value = 42 + trial  # Varying seed for each trial
-        points = gen_pt_cloud(n, seed_value)  # Generate points with the current seed
+        points = gen_pt_cloud(n, 0, 1, seed_value)  # Generate points with the current seed
         
         # Measure execution time for each algorithm
         times = measure_execution_time(points, algorithms)
@@ -275,7 +302,6 @@ for n in n_values:
         avg_time = np.mean(times)
         results[name].append(avg_time)  # Store averaged time for this n
 
-# Plot the results
 plt.figure(figsize=(10, 6))
 for name, times in results.items():
     plt.plot(n_values, times, label=name, marker='o')
@@ -286,7 +312,139 @@ plt.legend()
 plt.grid(True)
 plt.show()
 
-# with open("convex_hull_time_comparison.txt", "w") as file:
+# CONCLUSION FILE FOR B, NEED TO COME BACK AND DO
+
+# with open("analysis_2b.txt", "w") as file:
+#     file.write("Conclusion:\n")
+#     file.write("For the 4 tested hull calculation methods, \n")
+#     file.write("\n")
+
+
+# c)
+# Prepare a dictionary for storing runtime results for each algorithm
+results_1 = {name: [] for name in algorithms.keys()}
+results_2 = {name: [] for name in algorithms.keys()}
+
+# Loop through different point cloud sizes for 0 to 1 range
+for n in n_values:
+    trial_times = {name: [] for name in algorithms.keys()}
+    for trial in range(num_trials):
+        seed_value = 42 + trial  # Varying seed for each trial
+        points = gen_pt_cloud(n, 0, 1, seed_value)  # Generate points in range [0, 1]
+        times = measure_execution_time(points, algorithms)
+        for name, time_taken in times.items():
+            trial_times[name].append(time_taken)
+    for name, times in trial_times.items():
+        avg_time = np.mean(times)
+        results_1[name].append(avg_time)
+
+# Loop through different point cloud sizes for -5 to 5 range
+for n in n_values:
+    trial_times = {name: [] for name in algorithms.keys()}
+    for trial in range(num_trials):
+        seed_value = 42 + trial  # Varying seed for each trial
+        points = gen_pt_cloud(n, -5, 5, seed_value)  # Generate points in range [-5, 5]
+        times = measure_execution_time(points, algorithms)
+        for name, time_taken in times.items():
+            trial_times[name].append(time_taken)
+    for name, times in trial_times.items():
+        avg_time = np.mean(times)
+        results_2[name].append(avg_time)
+
+# Plot both results on the same plot
+plt.figure(figsize=(12, 8))
+for name, times in results_1.items():
+    plt.plot(n_values, times, label=f"{name} (0 to 1)", marker='o', alpha=0.8)
+for name, times in results_2.items():
+    plt.plot(n_values, times, label=f"{name} (-5 to 5)", marker='o', linestyle='--', alpha=0.6)
+    
+plt.xlabel("Number of Points (n)")
+plt.ylabel("Average Execution Time (seconds)")
+plt.title("Average Execution Time vs. Input Size for Convex Hull Algorithms")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# Prepare a dictionary for storing runtime results for each algorithm
+results_uniform = {name: [] for name in algorithms.keys()}
+results_gaussian = {name: [] for name in algorithms.keys()}
+
+# Loop through different point cloud sizes for uniform sampling (0 to 1 range)
+for n in n_values:
+    trial_times = {name: [] for name in algorithms.keys()}
+    for trial in range(num_trials):
+        seed_value = 42 + trial  # Varying seed for each trial
+        points = gen_pt_cloud(n, 0, 1, seed_value)  # Uniform sampling
+        times = measure_execution_time(points, algorithms)
+        for name, time_taken in times.items():
+            trial_times[name].append(time_taken)
+    for name, times in trial_times.items():
+        avg_time = np.mean(times)
+        results_uniform[name].append(avg_time)
+
+# Loop through different point cloud sizes for Gaussian sampling
+for n in n_values:
+    trial_times = {name: [] for name in algorithms.keys()}
+    for trial in range(num_trials):
+        seed_value = 42 + trial  # Varying seed for each trial
+        points = gauss_pt_cloud(n, seed_value)  # Gaussian sampling
+        times = measure_execution_time(points, algorithms)
+        for name, time_taken in times.items():
+            trial_times[name].append(time_taken)
+    for name, times in trial_times.items():
+        avg_time = np.mean(times)
+        results_gaussian[name].append(avg_time)
+
+# Plot both results on the same plot
+plt.figure(figsize=(12, 8))
+for name, times in results_uniform.items():
+    plt.plot(n_values, times, label=f"{name} (Uniform)", marker='o', alpha=0.8)
+for name, times in results_gaussian.items():
+    plt.plot(n_values, times, label=f"{name} (Gaussian)", marker='o', linestyle='--', alpha=0.6)
+    
+plt.xlabel("Number of Points (n)")
+plt.ylabel("Average Execution Time (seconds)")
+plt.title("Average Execution Time vs. Input Size for Convex Hull Algorithms")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# CONCLUSION FILE FOR C, NEED TO COME BACK AND DO
+
+# with open("analysis_2c.txt", "w") as file:
+#     file.write("Conclusion:\n")
+#     file.write("For the 4 tested hull calculation methods, \n")
+#     file.write("\n")
+
+# d)
+num_trials = 100
+results_gaussian = {name: [] for name in algorithms.keys()}
+for n in n_values:
+    trial_times = {name: [] for name in algorithms.keys()}
+    for trial in range(num_trials):
+        seed_value = 42 + trial  # Varying seed for each trial
+        points = gauss_pt_cloud(n, seed_value)  # Gaussian sampling
+        times = measure_execution_time(points, algorithms)
+        for name, time_taken in times.items():
+            trial_times[name].append(time_taken)
+    for name, times in trial_times.items():
+        avg_time = np.mean(times)
+        results_gaussian[name].append(avg_time)
+
+plt.figure(figsize=(12, 8))
+for name, times in results_gaussian.items():
+    plt.plot(n_values, times, label=f"{name} (Gaussian)", marker='o', linestyle='--')
+    
+plt.xlabel("Number of Points (n)")
+plt.ylabel("Average Execution Time (seconds)")
+plt.title("100 Trials Gaussian n=50")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# CONCLUSION FILE FOR C, NEED TO COME BACK AND DO
+
+# with open("analysis_2d.txt", "w") as file:
 #     file.write("Conclusion:\n")
 #     file.write("For the 4 tested hull calculation methods, \n")
 #     file.write("\n")
