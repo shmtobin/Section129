@@ -1,0 +1,20 @@
+Algorithm: Graham Scan
+  Best Runtime: 0.0004 seconds
+  Worst Runtime: 0.0012 seconds
+  Approximate Distribution: normal
+
+Algorithm: Jarvis March
+  Best Runtime: 0.0005 seconds
+  Worst Runtime: 0.0023 seconds
+  Approximate Distribution: normal
+
+Algorithm: Quickhull
+  Best Runtime: 0.0004 seconds
+  Worst Runtime: 0.0017 seconds
+  Approximate Distribution: normal
+
+Algorithm: Monotone Chain
+  Best Runtime: 0.0002 seconds
+  Worst Runtime: 0.0010 seconds
+  Approximate Distribution: normal
+

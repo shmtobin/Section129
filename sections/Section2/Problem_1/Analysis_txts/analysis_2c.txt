@@ -1,0 +1,6 @@
+Effect of increased variance on methods:
+
+For the 4 tested hull calculation methods, 
+all methods were slightly less efficient for 
+higher variance, but this effect plateaus in high n 
+which makes sense. 

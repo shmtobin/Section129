@@ -1,0 +1,14 @@
+Distribution of times for each algorithm:
+
+For the 4 tested hull calculation methods, 
+Monotone chain was by far the fastest on average
+with a high peak dominating the vast majority of runs
+before 0.003 seconds, impressively.
+Disregarding Quickhull again as it is dysfunctional,
+Graham scan appeared to be the next best algorithm
+with with a large cluster of runs before 0.0006 seconds
+and very few runs considerably slower than this.
+Jarvis march was by a wide margin the slowest model.
+Its distribution has a peak at around 0.0008 seconds
+but a nonnegligible number of runs extend out to 0.0018
+ seconds.
