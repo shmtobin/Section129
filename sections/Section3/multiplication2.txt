@@ -1,0 +1,3 @@
+Multiplication Process Log for 101111 × 101001:
+Initial Tape Input: 1101111#1101001$11110000111
+Final Tape Output: 1101111#1101001$11110000111

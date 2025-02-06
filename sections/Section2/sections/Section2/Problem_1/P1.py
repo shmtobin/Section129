@@ -19,9 +19,6 @@ import time
 warnings.filterwarnings("ignore")
 import os
 
-if not os.path.exists("Plots"):
-    os.makedirs("Plots")
-
 # basic visualization
 def scatter_plot(coords, convex_hull=None):
     xs, ys=zip(*coords) # unzip the coordinate array into lists
