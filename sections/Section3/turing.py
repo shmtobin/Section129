@@ -347,101 +347,143 @@ import random
 
 class TuringMachine:
     def __init__(self, tape, states, initial_state, halt_state, transition_function, output_file='multiplication.txt'):
-        self.tape = list(tape)  # Tape as a list
-        self.head = 0           # Tape head position
-        self.state = initial_state  # Initial state
-        self.halt_state = halt_state  # Halting state
-        self.transition_function = transition_function  # Transition rules
-        self.steps = []         # To store tape configurations
-        self.output_file = output_file  # Output file for logging
+        self.tape = list(tape)
+        self.head = 0
+        self.state = initial_state
+        self.halt_state = halt_state
+        self.transition_function = transition_function
+        self.steps = []
+        self.output_file = output_file
 
     def log_to_file(self, message):
-        """Logs messages to the multiplication.txt file."""
         with open(self.output_file, 'a') as f:
             f.write(message + "\n")
 
     def step(self):
-        """Performs a single step based on transition rules."""
-        current_symbol = self.tape[self.head] if self.head < len(self.tape) else 'B'
+        if self.head >= len(self.tape) or self.head < 0:
+            current_symbol = 'B'
+        else:
+            current_symbol = self.tape[self.head]
 
-        if (self.state, current_symbol) not in self.transition_function:
-            return False  # No transition found; halt
+        key = (self.state, current_symbol)
+        if key not in self.transition_function:
+            return False
 
-        new_symbol, direction, new_state = self.transition_function[(self.state, current_symbol)]
-        self.tape[self.head] = new_symbol
+        new_symbol, direction, new_state = self.transition_function[key]
+        if self.head >= len(self.tape):
+            self.tape.append(new_symbol)
+        else:
+            self.tape[self.head] = new_symbol
         self.state = new_state
 
         if direction == 'R':
             self.head += 1
-            if self.head >= len(self.tape):
-                self.tape.append('B')  # Extend tape
         elif direction == 'L':
-            if self.head == 0:
-                self.tape.insert(0, 'B')  # Extend tape at the beginning
-            else:
-                self.head -= 1
+            self.head -= 1
 
-        # Store tape state and log to file
+        if self.head < 0:
+            self.tape.insert(0, 'B')
+            self.head = 0
+        elif self.head >= len(self.tape):
+            self.tape.append('B')
+
         self.steps.append("".join(self.tape))
-        self.log_to_file(f"Step {len(self.steps)}: {''.join(self.tape)}")  # Log tape at each step
+        self.log_to_file(f"Step {len(self.steps)}: {''.join(self.tape)}")
         return True
 
     def run(self):
-        """Runs the machine until a halting state is reached."""
-        self.log_to_file(f"Initial Tape Input: {''.join(self.tape)}")  # Log initial tape input
+        self.log_to_file(f"Initial Tape Input: {''.join(self.tape)}")
         while self.state != self.halt_state:
             if not self.step():
-                break  # No valid transition, halt
-        self.log_to_file(f"Final Tape Output: {''.join(self.tape)}")  # Log final tape output
+                break
+        self.log_to_file(f"Final Tape Output: {''.join(self.tape)}")
 
-    def print_tape(self):
+    def print_tape(self):  # Now it's a method of the class
         print("".join(self.tape))
 
     @staticmethod
     def binary_multiplication_tape(a, b):
-        """Converts decimal numbers to binary and formats the tape input."""
         return f"1{a:b}#1{b:b}$"
 
-# Function to extract multiplication result
 def parse_turing_output(output):
-    """Extracts binary multiplication result after '$' and converts it to decimal."""
-    parts = output.split('$')  # Split at '$'
-    
-    if len(parts) < 2 or not parts[1]:  # Check if there's a valid binary number
-        return None  
+    print(f"Raw Turing Machine Output: {output}")  # Debugging
 
-    binary_result = parts[1].strip('B')  # Remove any blank symbols
-    return int(binary_result, 2) if binary_result else None
+    parts = output.split('$')
+    if len(parts) < 2 or not parts[1].strip():
+        print("Error: No valid result found after '$', returning 0")
+        return 0  # Defaulting to 0 instead of None
 
-# Implementing Correct Multiplication Logic
+    binary_result = ''.join(filter(lambda x: x in '01', parts[1]))
+
+    if not binary_result:
+        print("Error: No binary digits found in result portion, returning 0")
+        return 0
+
+    return int(binary_result, 2)
+
+
 def multiply_binary(a, b):
-    """Simulates binary multiplication and writes the result after '$'."""
-    result = a * b  # Perform multiplication in decimal
-    binary_result = bin(result)[2:]  # Convert to binary (remove '0b')
-    return f"1{a:b}#1{b:b}${binary_result}"  # Correct final tape output
+    result = a * b
+    return f"1{a:b}#1{b:b}${bin(result)[2:]}"
 
-# Example Usage
-a, b = 5, 3  # Numbers to multiply
-tape_input = multiply_binary(a, b)
-print("Initial Tape Input:", tape_input)
+def print_tape(self):
+    print("".join(self.tape))
 
-# Clear the multiplication.txt file before starting
+# Define the transition rules for binary multiplication
+# States and transitions need to handle copying, adding, shifting, etc.
+# This is a simplified version for demonstration.
+transitions = {
+    # Initial state: move to the separator '#'
+    ('q0', '1'): ('1', 'R', 'q0'),
+    ('q0', '#'): ('#', 'R', 'q1'),
+    # Move past the '#'
+    ('q1', '1'): ('1', 'R', 'q1'),
+    ('q1', '$'): ('$', 'L', 'q2'),
+    # Start processing the multiplier (b)
+    ('q2', '1'): ('B', 'L', 'q3'),
+    ('q2', 'B'): ('B', 'L', 'q2'),
+    # Add multiplicand (a) to result if current bit is 1
+    # (This is a simplified transition; actual implementation requires more states)
+    ('q3', '#'): ('#', 'L', 'q3'),
+    ('q3', '1'): ('1', 'L', 'q3'),
+    ('q3', 'B'): ('B', 'R', 'halt')  # Simplified for example
+}
+# Additional transitions for binary multiplication (simplified for demonstration)
+transitions.update({
+    ('q3', '1'): ('1', 'R', 'q3'),  # Keep moving to the right
+    ('q3', 'B'): ('B', 'R', 'halt'),  # End if we reach the blank symbol after finishing multiplication
+})
+
+
+# Example usage
+a, b = 5, 3
+tape_input = TuringMachine.binary_multiplication_tape(a, b)
+
+# Initialize the Turing Machine with the transitions
+tm = TuringMachine(
+    tape=tape_input,
+    states={'q0', 'q1', 'q2', 'q3', 'halt'},
+    initial_state='q0',
+    halt_state='halt',
+    transition_function=transitions
+)
+
+# Clear the output file
 with open('multiplication.txt', 'w') as f:
     f.write("Multiplication Process Log:\n")
 
-tm = TuringMachine(tape_input, {}, initial_state='q0', halt_state='halt', transition_function={})
 tm.run()
 
-tm.print_tape()
+# Verify the result
+with open('multiplication.txt', 'r') as f:
+    lines = f.readlines()
+    final_output = lines[-1].split(": ")[1].strip()
+    result = parse_turing_output(final_output)
 
-# Extract multiplication result
-turing_output = "".join(tm.tape)
-print("Final Tape Output:", turing_output)
-print("Extracted Binary Result:", parse_turing_output(turing_output))
+expected_result = a * b
+print(f"Turing Machine Result: {result}, Expected: {expected_result}")
+print("Test Passed!" if result == expected_result else "Test Failed!")
 
-# Convert to numeric form
-result = parse_turing_output(turing_output)
-print(f"Multiplication Result: {result}")  # Should output 15 for 5 * 3
 
 # yayyyy! it multiply well! :DDDDDD
 
@@ -458,7 +500,7 @@ file_name1 = 'multiplication1.txt'
 with open(file_name1, 'w') as f:
     f.write("Multiplication Process Log for 101001010111 × 101000101:\n")
 
-tm1 = TuringMachine(tape_input1, {}, initial_state='q0', halt_state='halt', transition_function={}, output_file=file_name1)
+tm1 = TuringMachine(tape_input1, {'q0', 'q1', 'q2', 'q3', 'halt'}, initial_state='q0', halt_state='halt', transition_function=transitions, output_file=file_name1)
 tm1.run()
 
 # Print and Extract Result for First Multiplication
@@ -466,6 +508,10 @@ tm1.print_tape()
 turing_output1 = "".join(tm1.tape)
 result1 = parse_turing_output(turing_output1)
 print(f"Multiplication Result for First Input: {result1}")
+
+# Verify against the expected result
+expected_result1 = a1 * b1
+print(f"Expected Result: {expected_result1}")
 
 # Example Usage for the Second Multiplication: 101111 × 101001
 a2, b2 = int('101111', 2), int('101001', 2)  # Convert from binary string to integers
@@ -485,5 +531,78 @@ turing_output2 = "".join(tm2.tape)
 result2 = parse_turing_output(turing_output2)
 print(f"Multiplication Result for Second Input: {result2}")
 
-# I'm going to call it here. Sorry :l
-# don't think I'm really gaining much from this
+# chatted with Zihang about this and I have returned to give more time
+# to this problem :D. I am going to try to find the patterns on the tape
+# as seen in the turing_notes file and use it to make the turing machine 
+# (with general Turing notation assitance courtesy of Ulysses' public github)
+# which I will just be annotating to increase my understanding of the Turing machine.
+
+
+# the tape we are given allows for the multiplication of two binary numbers
+# given with the formatting: "1<num1_in_binary>#1<num2_in_binary>$"
+# by repeatedly using an algorithm of adding and doubling values, 
+# this Turing machine can perform multiplication of the binary values
+
+# below I annotated a segment of Ulysses's code to increase my understanding
+# of the content. I am by no means trying to pass this work off as my own.
+    # tape patterns for algorithm: 
+    # class TuringMachine:
+    # # defining states as used in the given Turing machine tape
+    # 	def __init__(self, states, initial_state, final_states, initial_head=0, blank_symbol='B', wildcard_symbol='*', output_file=None):
+    # 		self.initial_head = initial_head
+    # 		self.initial_state = initial_state
+    # 		self.states = states
+    # 		self.state = initial_state
+    # 		self.blank_symbol = blank_symbol
+    # 		self.wildcard_symbol = wildcard_symbol
+    # 		self.final_states = final_states
+    # 		self.output_file = output_file
+    # # defining method by which tape is processed, a single
+    # # transition step
+    #     def step(self):
+    # # this line extends the tape whenever the head tries to 
+    # # move beyond the right blank symbol
+    # 		if self.head >= len(self.tape):
+    # 			self.tape.extend([self.blank_symbol] * (self.head - len(self.tape) + 1))
+    # # this line extends the tape whenever the head tries to 
+    # # move left beyond index 0, adding blank symbol
+    #         if self.head < 0:
+    # 			self.tape = [self.blank_symbol] * (-self.head) + self.tape
+    # 			self.head = 0
+    # 		#print(f'{self.state}\t{''.join(self.tape[:self.head])}\033[96m{self.tape[self.head]}\033[0m{''.join(self.tape[self.head + 1:])}')
+
+    # # this line just reads off the symbol the head is on
+    # 		current_symbol = self.tape[self.head]
+
+    # # checking transition rules
+    # # i) checks if transiiton exists for current state and symbol
+    # 		if (self.state, current_symbol) in self.states:
+    # 			new_symbol, direction, new_state = self.states[(self.state, current_symbol)]
+    # # ii) if no transition exists for current state and symbol
+    # # checks for transition with wildcard symbol
+    #         elif (self.state, self.wildcard_symbol) in self.states:
+    # 			new_symbol, direction, new_state = self.states[(self.state, self.wildcard_symbol)]
+    # # iii) if it cannot do either of the above, throw an error
+    #         else:
+    # 			raise ValueError(f"No transition defined for state '{self.state}' and symbol '{current_symbol}'.")
+    # # updating the tape
+    # # i) if transition wildcard, keep current symbol instead		
+    #         if new_symbol == self.wildcard_symbol:
+    # 			new_symbol = current_symbol
+    # # ii) update tape head posiiton to new symbol and updates
+    # # state
+    # 		self.tape[self.head] = new_symbol
+    # 		self.state = new_state
+    # # moves the tape head to the right if direction R/r
+    # # and moves the tape head to the left if L/l
+    # 		if direction == 'R' or direction == 'r':
+    # 			self.head += 1
+    # 		elif direction == 'L' or direction == 'l':
+    # 			self.head -= 1
+
+    # I'm going to end off here because I have sank a considerable 
+    # amount of time into this section worksheet and I don't think
+    # it will be very growthful to pour more in. I learned much more
+    # about Turing machines than when I started but there's so much 
+    # syntax I'm unfamiliar with between me and a confident solid 
+    # solution to this problem.

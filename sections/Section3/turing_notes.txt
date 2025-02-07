@@ -1,4 +1,5 @@
-Need to determine the impact of each of the q_i 
+In this document I recorded some of the conversions on the 
+provided tape as explained in class.
 
 Current_state  Read  Write  Move   Next
 q_0            1     X      Right  q_1
