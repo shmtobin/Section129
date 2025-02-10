@@ -127,7 +127,7 @@ t0 = times[0]
 normalized_empirical = [t / t0 for t in times]
 
 n_dense = np.linspace(2, max_n, 100)  # 100 points for smoothness
-theoretical_dense = [(n/2)**3 for n in n_dense]  # Normalized to n=2
+theoretical_dense = [(n/2)**3 for n in n_dense]  # normalized to n=2
 
 # plotting
 plt.figure(figsize=(10, 6))
@@ -144,8 +144,8 @@ plt.ylabel("Normalized Time")
 plt.title("Time Complexity Analysis (5 Trials per Measurement)")
 plt.legend()
 plt.grid(True)
-plt.show()
 plt.savefig(f'Plots/naive_mm_time_complexity.png')
+plt.show()
 
 # Q2) Strassen’s algorithm
 
@@ -295,8 +295,8 @@ plt.ylabel("Normalized Time")
 plt.title("Time Complexity: Naive vs. Strassen's Algorithm")
 plt.legend()
 plt.grid(True)
-plt.show()
 plt.savefig(f'Plots/naive_v_strassen_comparison.png')
+plt.show()
 
 
 # the results of this plot demonstrate the increased efficiency
