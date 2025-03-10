@@ -1,5 +1,6 @@
 # 7A P1
 
+
 import json
 import math
 import numpy as np
@@ -85,7 +86,7 @@ def run_bayesian_inference_all():
     Runs the Bayesian inference on all three datasets and plots their posterior
     distributions side by side.
     """
-    dataset_files = ['dataset1.json', 'dataset2.json', 'dataset3.json']
+    dataset_files = ['dataset_1.json', 'dataset_2.json', 'dataset_3.json']
     fig, axs = plt.subplots(1, 3, figsize=(18, 5))
     for ax, dataset_file in zip(axs, dataset_files):
         bayesian_inference_coin(dataset_file, ax)
@@ -153,3 +154,164 @@ if __name__ == '__main__':
     
     print("\nRunning Task 1b: Stirling's Approximation Check")
     stirling_approximation_plot()
+
+# ----------------------------
+# Task 1e: Bootsrapping
+# ----------------------------
+
+import json
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Set a random seed for reproducibility
+np.random.seed(42)
+
+def bootstrap_coin(dataset_filename, sample_sizes, n_bootstrap=100):
+    """
+    Loads coin-flip outcomes from dataset_filename and performs bootstrapping.
+    
+    For each sample size in sample_sizes, 100 bootstrap samples (with replacement)
+    are drawn from the full dataset. For each bootstrap sample, the fraction of heads
+    is computed. The function returns a dictionary mapping each sample size to an
+    array of bootstrap estimates, and the overall coin-head probability (p_full)
+    computed from the full dataset.
+    
+    Parameters:
+      dataset_filename (str): The JSON file with coin flip outcomes.
+      sample_sizes (list of int): List of sample sizes for bootstrapping.
+      n_bootstrap (int): Number of bootstrap iterations for each sample size.
+      
+    Returns:
+      bootstrap_results (dict): Keys are sample sizes; values are arrays of bootstrap estimates.
+      p_full (float): Overall fraction of heads from the entire dataset.
+    """
+    with open(dataset_filename, 'r') as f:
+        data = json.load(f)
+    # Convert boolean outcomes to integers (True -> 1, False -> 0)
+    data = np.array(data, dtype=int)
+    N_total = len(data)
+    p_full = np.sum(data) / N_total  # Full dataset estimate
+    
+    bootstrap_results = {}
+    for size in sample_sizes:
+        estimates = []
+        for _ in range(n_bootstrap):
+            # Sample with replacement from the dataset
+            sample = np.random.choice(data, size=size, replace=True)
+            p_boot = np.sum(sample) / size
+            estimates.append(p_boot)
+        bootstrap_results[size] = np.array(estimates)
+    return bootstrap_results, p_full
+
+def plot_bootstrap_histograms(bootstrap_results, p_full, dataset_name):
+    """
+    For a given dataset, plots a 3x3 grid of histograms of bootstrap estimates.
+    Each subplot corresponds to one sample size from the provided bootstrap_results.
+    
+    The subplot title includes the sample size, bootstrap mean, and variance.
+    A vertical dashed line indicates the full dataset estimate p_full.
+    
+    Parameters:
+      bootstrap_results (dict): Keys are sample sizes; values are arrays of bootstrap estimates.
+      p_full (float): The full dataset estimate of p.
+      dataset_name (str): Name of the dataset (e.g., filename) for labeling.
+      
+    Returns:
+      sample_sizes_sorted (list): Sorted list of sample sizes.
+      exp_boot (list): Bootstrap mean for each sample size.
+      var_boot (list): Bootstrap variance for each sample size.
+    """
+    sample_sizes_sorted = sorted(bootstrap_results.keys())
+    exp_boot = []  # Bootstrap expectation for each sample size
+    var_boot = []  # Bootstrap variance for each sample size
+    
+    fig, axs = plt.subplots(3, 3, figsize=(15, 12))
+    axs = axs.flatten()
+    
+    for i, size in enumerate(sample_sizes_sorted):
+        estimates = bootstrap_results[size]
+        mean_est = np.mean(estimates)
+        var_est = np.var(estimates)
+        exp_boot.append(mean_est)
+        var_boot.append(var_est)
+        
+        ax = axs[i]
+        ax.hist(estimates, bins=10, edgecolor='black', alpha=0.7)
+        ax.axvline(p_full, color='red', linestyle='--', label=f'p_full = {p_full:.3f}')
+        ax.set_title(f'Sample Size = {size}\nBoot Mean = {mean_est:.3f}, Var = {var_est:.5f}')
+        ax.set_xlabel('Bootstrap p')
+        ax.set_ylabel('Count')
+        ax.legend(fontsize='small')
+    
+    # Hide any extra subplots if sample_sizes_sorted has fewer than 9 entries
+    for j in range(i+1, len(axs)):
+        axs[j].axis('off')
+    
+    fig.suptitle(f'Bootstrap Histograms for {dataset_name}', fontsize=16)
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    plt.show()
+    
+    return sample_sizes_sorted, exp_boot, var_boot
+
+def plot_bootstrap_summary(sample_sizes, exp_boot, var_boot, p_full, dataset_name):
+    """
+    Plots the bootstrap expectation values and variances versus sample size.
+    
+    The left subplot shows the bootstrap means along with a horizontal line for p_full.
+    The right subplot shows the bootstrap variances and, for reference, the theoretical
+    variance for a Bernoulli distribution, p_full*(1-p_full)/n.
+    
+    Parameters:
+      sample_sizes (list): List of sample sizes used in bootstrapping.
+      exp_boot (list): Bootstrap expectation (mean) for each sample size.
+      var_boot (list): Bootstrap variance for each sample size.
+      p_full (float): The full dataset estimate of p.
+      dataset_name (str): Name of the dataset for labeling.
+    """
+    fig, axs = plt.subplots(1, 2, figsize=(14, 5))
+    
+    # Expectation plot
+    axs[0].plot(sample_sizes, exp_boot, marker='o', label='Bootstrap Mean')
+    axs[0].axhline(p_full, color='red', linestyle='--', label=f'Full p = {p_full:.3f}')
+    axs[0].set_xlabel('Sample Size')
+    axs[0].set_ylabel('Expectation (p)')
+    axs[0].set_title('Bootstrap Expectation vs. Sample Size')
+    axs[0].legend()
+    
+    # Variance plot
+    axs[1].plot(sample_sizes, var_boot, marker='o', label='Bootstrap Variance')
+    # The theoretical variance for a Bernoulli sample mean is p*(1-p)/n.
+    theoretical_var = [p_full * (1 - p_full) / n for n in sample_sizes]
+    axs[1].plot(sample_sizes, theoretical_var, marker='x', linestyle='--',
+                label='Theoretical Var (p*(1-p)/n)')
+    axs[1].set_xlabel('Sample Size')
+    axs[1].set_ylabel('Variance')
+    axs[1].set_title('Bootstrap Variance vs. Sample Size')
+    axs[1].legend()
+    
+    fig.suptitle(f'Bootstrap Summary for {dataset_name}', fontsize=16)
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    plt.show()
+
+def run_bootstrap_analysis():
+    """
+    Runs the bootstrapping analysis on three datasets.
+    
+    For each dataset, the function:
+      1. Loads the dataset and computes the full dataset p.
+      2. Performs bootstrapping for sample sizes of 5, 15, 40, 60, 90, 150, 210, 300, and 400.
+      3. Plots a 3x3 histogram grid of bootstrap estimates.
+      4. Plots summary curves for expectation and variance versus sample size.
+    """
+    dataset_files = ['dataset_1.json', 'dataset_2.json', 'dataset_3.json']
+    sample_sizes = [5, 15, 40, 60, 90, 150, 210, 300, 400]
+    
+    for dataset in dataset_files:
+        print(f"\nProcessing {dataset}...")
+        bootstrap_results, p_full = bootstrap_coin(dataset, sample_sizes, n_bootstrap=100)
+        sizes, exp_boot, var_boot = plot_bootstrap_histograms(bootstrap_results, p_full, dataset)
+        plot_bootstrap_summary(sizes, exp_boot, var_boot, p_full, dataset)
+        print(f"Full dataset p for {dataset}: {p_full:.3f}")
+
+if __name__ == '__main__':
+    run_bootstrap_analysis()
