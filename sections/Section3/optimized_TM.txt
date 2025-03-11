@@ -1,0 +1,14 @@
+Optimized Turing Machine State Transition Diagram:
+
+q0: Initial state. Read left blanks and move right to start processing.
+q1: Process the multiplicand digits.
+q2: On reading the '#' separator, switch to multiplier processing.
+q3: Read a multiplier digit. If the digit is '1', transition to q4; if '0', skip to q5.
+q4: Add the multiplicand (shifted appropriately) to the accumulator.
+q5: Mark the processed multiplier digit (change it to a marker, e.g. 'X') and prepare for next digit.
+q6: Move the tape head back to the beginning (or appropriate position) for the next cycle.
+q7: Final adjustments before termination.
+qhalt: Halt state.
+
+Total number of states (excluding qhalt): 8
+Including the halt state, the optimized Turing Machine has 9 states.

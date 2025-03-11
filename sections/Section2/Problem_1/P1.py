@@ -121,52 +121,53 @@ def jarvis(points):
     return hull
 
 # quickhull algorithm
-# this shit does not work but trying to fix it is not good for me
 def quickhull(points):
-    def find_farthest_point(p1, p2, points):
-        farthest_point = None
-        max_distance = -1
-        for point in points:
-            # Calculate distance of 'point' from the line (p1, p2)
-            distance = abs(det(p1, p2, point))
-            if distance > max_distance:
-                max_distance = distance
-                farthest_point = point
-        return farthest_point
+    # convert points to a list of tuples for consistency
+    points = [tuple(p) for p in points]
+    if len(points) < 3:
+        return points
 
-    def find_hull(subset, p1, p2, hull):
-        if not subset:
-            return
-        
-        farthest_point = find_farthest_point(p1, p2, subset)
-        hull.append(tuple(farthest_point))
-        
-        # partition the remaining points into two subsets
-        left_of_p1_far = [p for p in subset if det(p1, farthest_point, p) > 0]
-        left_of_far_p2 = [p for p in subset if det(farthest_point, p2, p) > 0]
-        
-        # recursively find hull points on the left of the new lines
-        find_hull(left_of_p1_far, p1, farthest_point, hull)
-        find_hull(left_of_far_p2, farthest_point, p2, hull)
+    # helper: which side of line from a to b is point p on?
+    def side(a, b, p):
+        return det(a, b, p)
 
-    # find the leftmost and rightmost points (anchor points)
-    leftmost = points[np.argmin(points[:, 0])]
-    rightmost = points[np.argmax(points[:, 0])]
-    hull = [tuple(leftmost), tuple(rightmost)]
-    
-    # split points into two subsets
-    left_of_line = [p for p in points if det(leftmost, rightmost, p) > 0]
-    right_of_line = [p for p in points if det(rightmost, leftmost, p) > 0]
+    # recursively add hull points between p and q
+    def add_hull(pt_set, p, q):
+        index = None
+        max_distance = 0
+        # find the point with maximum distance from line p->q
+        for i, pt in enumerate(pt_set):
+            d = abs(det(p, q, pt))
+            if d > max_distance:
+                max_distance = d
+                index = i
+        if index is None:
+            # no point is outside; p->q is a hull edge
+            return []
+        farthest = pt_set[index]
+        # split set into two subsets: points to the left of (p, farthest)
+        # and points to the left of (farthest, q)
+        left_set = [pt for pt in pt_set if side(p, farthest, pt) > 0]
+        right_set = [pt for pt in pt_set if side(farthest, q, pt) > 0]
+        # recursively find hull points on these segments
+        return add_hull(left_set, p, farthest) + [farthest] + add_hull(right_set, farthest, q)
 
-    # recursively find hull points on each side of the line
-    find_hull(left_of_line, leftmost, rightmost, hull)
-    find_hull(right_of_line, rightmost, leftmost, hull)
-    
-    # return hull in counterclockwise order
-    return sorted(hull, key=lambda p: (atan2(p[1] - leftmost[1], p[0] - leftmost[0])))
-    
-    # Return hull in counterclockwise order
-    return sorted(hull, key=lambda p: (atan2(p[1] - leftmost[1], p[0] - leftmost[0])))
+    # find the leftmost and rightmost points (extremes)
+    leftmost = min(points, key=lambda p: p[0])
+    rightmost = max(points, key=lambda p: p[0])
+
+    # partition the points into two subsets: above and below the line
+    above = [pt for pt in points if side(leftmost, rightmost, pt) > 0]
+    below = [pt for pt in points if side(rightmost, leftmost, pt) > 0]
+
+    # build the hull (in order) by combining the extreme points and the recursively found points
+    upper_hull = add_hull(above, leftmost, rightmost)
+    lower_hull = add_hull(below, rightmost, leftmost)
+
+    # The full hull is the leftmost point, then the points on the upper hull,
+    # then the rightmost point, and finally the points on the lower hull.
+    return [leftmost] + upper_hull + [rightmost] + lower_hull
+
 def monotone_chain(points):
     # sort the points lexicographically (first by x-coordinate, then by y-coordinate)
     points = sorted(map(tuple, points), key=lambda p: (p[0], p[1]))
@@ -334,14 +335,11 @@ with open("Analysis_txts/analysis_2b.txt", "w") as file:
     file.write("which in theory could be as bad as O(n^2), which is worse \n")
     file.write("than Graham scan at O(n log(n)), but this would mean that  \n")
     file.write("h grows considerably faster than log(n), which doesn't sound  \n")
-    file.write("very reasonable. The most efficient algorithm was Monotone Chain  \n")
-    file.write("which is supposed to also be O(n log(n)). This algorithm is reasonably  \n")
-    file.write("similar to Gram scan, which makes sense since they have common time complexity.  \n")
-    file.write("Looking through my Graham scan, I can definitely believe that it is \n")
-    file.write("suboptimally designed, so maybe this makes sense.\n")
-    file.write("The quickhull algorithm is broken, and incorrectly selecting the hull\n")
-    file.write("so its results should be wholly discarded. \n")
-
+    file.write("very reasonable. Quickhull was next most efficient, which  \n")
+    file.write("makes sense because Quickhull has time complexity O(nlog(n))  \n")
+    file.write("The most efficient algorithm was Monotone Chain  \n")
+    file.write("which is supposed to also be O(n log(n)), like Quickhull \n")
+    file.write("so it makes sense their time complexity appears comparable.  \n")
 # # c)
 # Prepare a dictionary for storing runtime results for each algorithm
 results_1 = {name: [] for name in algorithms.keys()}
@@ -487,11 +485,5 @@ with open("Analysis_txts/analysis_2d.txt", "w") as file:
     file.write("Monotone chain was by far the fastest on average\n")
     file.write("with a high peak dominating the vast majority of runs\n")
     file.write("before 0.003 seconds, impressively.\n")
-    file.write("Disregarding Quickhull again as it is dysfunctional,\n")
-    file.write("Graham scan appeared to be the next best algorithm\n")
-    file.write("with with a large cluster of runs before 0.0006 seconds\n")
-    file.write("and very few runs considerably slower than this.\n")
-    file.write("Jarvis march was by a wide margin the slowest model.\n")
-    file.write("Its distribution has a peak at around 0.0008 seconds\n")
-    file.write("but a nonnegligible number of runs extend out to 0.0018\n")
-    file.write(" seconds.\n")
+    file.write("Quickhull is the next quickest and then \n")
+    file.write("Jarvis march and Graham scan appear roughly\n")

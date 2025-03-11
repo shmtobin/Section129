@@ -1,608 +1,333 @@
-import os
-import random 
-
-# the general structure of this code is commented out 
-# different attempts to display effort put into this
-# problem, and then my best effort will be uncommented
-# at the bottom. I figure this is the best way to 
-# get value out of the assignment as the instructions
-# feel a bit unclear and I'm lost. might as well try to
-# see what a functional Turing machine looks like.
-
-# a) Create a python program that simulates a Turing machine
-# that performs arbitrary length binary multiplication.
-
-# this was first attempt, that didn't particularly work.
-# definitely don't particularly understand what we're 
-# supposed to do for this assignment. even if the completed
-# work here is pretty minimal, I did put effort into trying
-# to understand this assignment, discussing with AI and trying
-# to understand what Ulysses did.
-
-# # Define the Turing Machine class
-# class TuringMachine:
-#     def __init__(self, tape, states, initial_state, halt_state, transition_function):
-#         self.tape = list(tape)  # Tape as a list
-#         self.head = 0           # Tape head position
-#         self.state = initial_state  # Initial state
-#         self.halt_state = halt_state  # Halting state
-#         self.transition_function = transition_function  # Transition rules
-#         self.steps = []         # To store tape configurations
-
-#     def step(self):
-#         """Performs a single step based on the current state and tape symbol."""
-#         current_symbol = self.tape[self.head]
-#         if (self.state, current_symbol) in self.transition_function:
-#             # Get transition
-#             new_state, write_symbol, move_direction = self.transition_function[(self.state, current_symbol)]
-#             # Write the new symbol to the tape
-#             self.tape[self.head] = write_symbol
-#             # Move the tape head
-#             self.head += 1 if move_direction == 'R' else -1
-#             # Update the current state
-#             self.state = new_state
-#             # Log the current tape configuration
-#             self.steps.append(''.join(self.tape))
-#         else:
-#             self.state = self.halt_state  # Halt if no transition is defined
-
-#     def run(self):
-#         """Runs the Turing Machine until it halts."""
-#         while self.state != self.halt_state:
-#             self.step()
-
-#     def write_to_file(self, filename):
-#         """Writes tape configurations to a .dat file."""
-#         with open(filename, 'w') as f:
-#             for step in self.steps:
-#                 f.write(step + '\n')
-
-
-# # Define transition rules for binary multiplication (simplified example)
-# # Replace this with the full implementation for arbitrary-length binary multiplication
-# transition_function = {
-#     ('q0', '1'): ('q1', 'X', 'R'),  # Example: Replace 1 with X and move right
-#     ('q1', '0'): ('q2', 'Y', 'R'),
-#     # Add all other transitions here
-# }
-
-# # Define initial tape for binary multiplication: 101 × 110
-# initial_tape = ['1', '0', '1', '#', '1', '1', '0', 'B', 'B', 'B', 'B']
-# states = ['q0', 'q1', 'q2', 'qhalt']  # Example states
-# initial_state = 'q0'
-# halt_state = 'qhalt'
-
-# # Create the Turing Machine instance
-# tm = TuringMachine(initial_tape, states, initial_state, halt_state, transition_function)
-
-# # Run the Turing Machine
-# tm.run()
-
-# # Write tape configurations to a .dat file
-# output_filename = 'binary_multiplication.dat'
-# tm.write_to_file(output_filename)
-
-# print(f"Tape configurations written to {output_filename}")
-
-
-# other attempt that does not work, but wanted to include to show 
-# effort that I put in
-
-# def main():
-#     # Define the transition table as provided by the user
-#     transition_table = """
-# Current_state  Read  Write  Move   Next
-# q_0            1     X      Right  q_1
-# q_1            0     0      Right  q_1
-# q_1            1     1      Right  q_1
-# q_1            #     #      Right  q_2
-# q_2            1     X      Right  q_3
-# q_3            1     1      Right  q_3
-# q_3            0     0      Right  q_3
-# q_3            $     $      Right  q_3
-# q_3            B...B B...B  Left   q_5
-# q_5            X     X      Left   q_5
-# q_5            $     $      Left   q_6
-# q_5            $     $      Left   q_6
-# q_6            0     0      Left   q_4
-# q_4            1     1      Left   q_4
-# q_4            X     1      Right  q_2
-# q_2            1     X      Right  q_3
-# q_3            0     0      Right  q_3
-# q_3            $     $      Right  q_3
-# q_3            X     X      Right  q_3
-# q_3            B...B B...B  Left   q_5
-# q_5            X     X      Left   q_5
-# q_5            X     X      Left   q_5
-# q_5            $     $      Left   q_6
-# q_6            0     0      Left   q_4
-# q_4            X     1      Right  q_2
-# q_2            0     Y      Right  q_3'
-# q_3'           $     $      Right  q_3'
-# q_3'           X     X      Right  q_3'
-# q_3'           X     X      Right  q_3'
-# q_3'           B...B B...B  Left   q_5
-# q_5            Y     Y      Left   q_5
-# q_5            X     X      Left   q_5
-# q_5            X     X      Left   q_5
-# q_5            $     $      Left   q_6
-# q_6            Y     Y      Right  q_8
-# q_8            $     $      Right  q_8
-# q_8            X     1      Left   q_7
-# q_7            $     $      Left   q_7
-# q_7            $     $      Left   q_7
-# q_7            Y     0      Left   q_7
-# q_7            1     1      Left   q_7
-# q_7            1     1      Left   q_7
-# q_7            #     #      Left   q_9
-# """
-
-#     # Parse the transition table into a dictionary
-#     transitions = {}
-#     lines = transition_table.strip().split('\n')
-#     headers = lines[0].split()
-#     for line in lines[1:]:
-#         parts = line.split()
-#         if not parts:
-#             continue
-#         current_state = parts[0].strip()
-#         read_symbol = parts[1].strip().replace('B...B', 'B')
-#         write_symbol = parts[2].strip().replace('B...B', 'B')
-#         move = parts[3].strip()
-#         next_state = parts[4].strip()
-#         key = (current_state, read_symbol)
-#         value = (write_symbol, move, next_state)
-#         transitions[key] = value  # Overwrite if duplicate keys
-
-#     # Read input binary strings
-#     import sys
-#     if len(sys.argv) < 3:
-#         print("Usage: python turing_machine.py <binary1> <binary2>")
-#         sys.exit(1)
-#     a = sys.argv[1]
-#     b = sys.argv[2]
-
-#     # Validate inputs are binary strings
-#     if not all(c in {'0', '1'} for c in a) or not all(c in {'0', '1'} for c in b):
-#         print("Error: Inputs must be binary strings.")
-#         sys.exit(1)
-
-#     # Initialize the tape
-#     tape = {}
-#     pos = 0
-#     for c in a:
-#         tape[pos] = c
-#         pos += 1
-#     tape[pos] = '#'
-#     pos += 1
-#     for c in b:
-#         tape[pos] = c
-#         pos += 1
-#     tape[pos] = '$'
-#     pos += 1
-
-#     # Head starts at position 0
-#     head_pos = 0
-#     current_state = 'q_0'
-
-#     # Generate output filename
-#     import os
-#     filename = f"binarymult_{a}_{b}.dat"
-#     output_dir = os.path.dirname(os.path.abspath(__file__))
-#     filepath = os.path.join(output_dir, filename)
-
-#     # Open the output file
-#     with open(filepath, 'w') as f:
-#         while current_state != 'qhalt':
-#             # Get current symbol
-#             current_symbol = tape.get(head_pos, 'B')
-
-#             # Check for transition
-#             key = (current_state, current_symbol)
-#             if key not in transitions:
-#                 print(f"No transition for state {current_state} reading {current_symbol}. Halting.")
-#                 break
-
-#             # Get transition details
-#             write_symbol, move_dir, next_state = transitions[key]
-
-#             # Write symbol to tape
-#             if write_symbol != 'B':
-#                 tape[head_pos] = write_symbol
-#             else:
-#                 if head_pos in tape:
-#                     del tape[head_pos]
-
-#             # Move head
-#             if move_dir == 'Right':
-#                 head_pos += 1
-#             else:
-#                 head_pos -= 1
-
-#             # Record the tape state after the transition
-#             def get_tape_string(tape_dict, head_pos):
-#                 # Get all positions to include
-#                 positions = list(tape_dict.keys()) + [head_pos]
-#                 if not positions:
-#                     return 'B'
-#                 min_pos = min(positions)
-#                 max_pos = max(positions)
-#                 symbols = []
-#                 for p in range(min_pos, max_pos + 1):
-#                     symbols.append(tape_dict.get(p, 'B'))
-#                 return ''.join(symbols)
-
-#             tape_str = get_tape_string(tape, head_pos)
-#             f.write(tape_str + '\n')
-
-#             # Transition to next state
-#             current_state = next_state
-
-#             # Check for qhalt (assuming qhalt is the halting state)
-#             if current_state == 'qhalt':
-#                 break
-
-# if __name__ == "__main__":
-#     main()x
-
-# another attempt that doesn't quite work
-
-# class TuringMachine:
-#     def __init__(self, tape, states, initial_state, halt_state, transition_function):
-#         self.tape = list(tape)  # Tape as a list
-#         self.head = 0           # Tape head position
-#         self.state = initial_state  # Initial state
-#         self.halt_state = halt_state  # Halting state
-#         self.transition_function = transition_function  # Transition rules
-#         self.steps = []         # To store tape configurations
-
-#     def step(self):
-#         """Performs a single step based on transition rules."""
-#         current_symbol = self.tape[self.head] if self.head < len(self.tape) else 'B'
-
-#         if (self.state, current_symbol) not in self.transition_function:
-#             return False  # No transition found; halt
-
-#         new_symbol, direction, new_state = self.transition_function[(self.state, current_symbol)]
-#         self.tape[self.head] = new_symbol
-#         self.state = new_state
-
-#         if direction == 'R':
-#             self.head += 1
-#             if self.head >= len(self.tape):
-#                 self.tape.append('B')  # Extend tape
-#         elif direction == 'L':
-#             if self.head == 0:
-#                 self.tape.insert(0, 'B')  # Extend tape at the beginning
-#             else:
-#                 self.head -= 1
-
-#         self.steps.append("".join(self.tape))  # Store tape state
-#         return True
-
-#     def run(self):
-#         """Runs the machine until a halting state is reached."""
-#         while self.state != self.halt_state:
-#             if not self.step():
-#                 break  # No valid transition, halt
-
-#     def print_tape(self):
-#         print("".join(self.tape))
-
-#     @staticmethod
-#     def binary_multiplication_tape(a, b):
-#         """Converts decimal numbers to binary and formats the tape input."""
-#         return f"1{a:b}#1{b:b}$"
-
-# # Updated transition function for binary multiplication
-# transitions = {
-#     ('q0', '1'): ('1', 'R', 'q1'),
-#     ('q1', '1'): ('1', 'R', 'q1'),
-#     ('q1', '#'): ('#', 'R', 'q2'),
-#     ('q2', '1'): ('1', 'R', 'q2'),
-#     ('q2', '$'): ('$', 'L', 'q3'),
-#     ('q3', '1'): ('1', 'L', 'q3'),
-#     ('q3', '#'): ('#', 'L', 'q4'),
-
-#     # Multiplication Logic:
-#     ('q4', '1'): ('X', 'R', 'q5'),  # Mark first number
-#     ('q5', '1'): ('1', 'R', 'q5'),
-#     ('q5', '#'): ('#', 'R', 'q6'),  # Move past '#'
-#     ('q6', '1'): ('1', 'R', 'q6'),
-#     ('q6', '$'): ('$', 'L', 'q7'),  # Move to the end of the second number
-
-#     ('q7', '1'): ('1', 'L', 'q7'),
-#     ('q7', '#'): ('#', 'L', 'q8'),
-#     ('q8', 'X'): ('1', 'R', 'q9'),  # Convert 'X' back to '1'
-
-#     ('q9', 'B'): ('1', 'L', 'halt'),  # Write the result
-# }
-
-# # Example Usage
-# a, b = 5, 3  # Numbers to multiply
-# tape_input = TuringMachine.binary_multiplication_tape(a, b)
-# tm = TuringMachine(tape_input, transitions, initial_state='q0', halt_state='halt', transition_function=transitions)
-
-# tm.run()
-# tm.print_tape()
-
-# # Function to interpret the output
-# def parse_turing_output(output):
-#     output = output.strip('$')  
-#     parts = output.split('#')  # Split at '#'
-
-#     if len(parts) != 2:
-#         raise ValueError("Unexpected format in Turing machine output")
-
-#     num1 = int(parts[0], 2)
-#     num2 = int(parts[1], 2)
-
-#     return num1, num2
-
-# turing_output = "".join(tm.tape)
-# num1, num2 = parse_turing_output(turing_output)
-
-# print(f"First number: {num1}")  # Should match input number
-# print(f"Second number: {num2}") # Should be the correct product
-
-class TuringMachine:
-    def __init__(self, tape, states, initial_state, halt_state, transition_function, output_file='multiplication.txt'):
-        self.tape = list(tape)
-        self.head = 0
-        self.state = initial_state
-        self.halt_state = halt_state
-        self.transition_function = transition_function
-        self.steps = []
-        self.output_file = output_file
-
-    def log_to_file(self, message):
-        with open(self.output_file, 'a') as f:
-            f.write(message + "\n")
-
-    def step(self):
-        if self.head >= len(self.tape) or self.head < 0:
-            current_symbol = 'B'
-        else:
-            current_symbol = self.tape[self.head]
-
-        key = (self.state, current_symbol)
-        if key not in self.transition_function:
-            return False
-
-        new_symbol, direction, new_state = self.transition_function[key]
-        if self.head >= len(self.tape):
-            self.tape.append(new_symbol)
-        else:
-            self.tape[self.head] = new_symbol
-        self.state = new_state
-
-        if direction == 'R':
-            self.head += 1
-        elif direction == 'L':
-            self.head -= 1
-
-        if self.head < 0:
-            self.tape.insert(0, 'B')
-            self.head = 0
-        elif self.head >= len(self.tape):
-            self.tape.append('B')
-
-        self.steps.append("".join(self.tape))
-        self.log_to_file(f"Step {len(self.steps)}: {''.join(self.tape)}")
-        return True
-
-    def run(self):
-        self.log_to_file(f"Initial Tape Input: {''.join(self.tape)}")
-        while self.state != self.halt_state:
-            if not self.step():
-                break
-        self.log_to_file(f"Final Tape Output: {''.join(self.tape)}")
-
-    def print_tape(self):  # Now it's a method of the class
-        print("".join(self.tape))
-
-    @staticmethod
-    def binary_multiplication_tape(a, b):
-        return f"1{a:b}#1{b:b}$"
-
-def parse_turing_output(output):
-    print(f"Raw Turing Machine Output: {output}")  # Debugging
-
-    parts = output.split('$')
-    if len(parts) < 2 or not parts[1].strip():
-        print("Error: No valid result found after '$', returning 0")
-        return 0  # Defaulting to 0 instead of None
-
-    binary_result = ''.join(filter(lambda x: x in '01', parts[1]))
-
-    if not binary_result:
-        print("Error: No binary digits found in result portion, returning 0")
-        return 0
-
-    return int(binary_result, 2)
-
-
-def multiply_binary(a, b):
-    result = a * b
-    return f"1{a:b}#1{b:b}${bin(result)[2:]}"
-
-def print_tape(self):
-    print("".join(self.tape))
-
-# Define the transition rules for binary multiplication
-# States and transitions need to handle copying, adding, shifting, etc.
-# This is a simplified version for demonstration.
-transitions = {
-    # Initial state: move to the separator '#'
-    ('q0', '1'): ('1', 'R', 'q0'),
-    ('q0', '#'): ('#', 'R', 'q1'),
-    # Move past the '#'
-    ('q1', '1'): ('1', 'R', 'q1'),
-    ('q1', '$'): ('$', 'L', 'q2'),
-    # Start processing the multiplier (b)
-    ('q2', '1'): ('B', 'L', 'q3'),
-    ('q2', 'B'): ('B', 'L', 'q2'),
-    # Add multiplicand (a) to result if current bit is 1
-    # (This is a simplified transition; actual implementation requires more states)
-    ('q3', '#'): ('#', 'L', 'q3'),
-    ('q3', '1'): ('1', 'L', 'q3'),
-    ('q3', 'B'): ('B', 'R', 'halt')  # Simplified for example
-}
-# Additional transitions for binary multiplication (simplified for demonstration)
-transitions.update({
-    ('q3', '1'): ('1', 'R', 'q3'),  # Keep moving to the right
-    ('q3', 'B'): ('B', 'R', 'halt'),  # End if we reach the blank symbol after finishing multiplication
-})
-
-
-# Example usage
-a, b = 5, 3
-tape_input = TuringMachine.binary_multiplication_tape(a, b)
-
-# Initialize the Turing Machine with the transitions
-tm = TuringMachine(
-    tape=tape_input,
-    states={'q0', 'q1', 'q2', 'q3', 'halt'},
-    initial_state='q0',
-    halt_state='halt',
-    transition_function=transitions
-)
-
-# Clear the output file
-with open('multiplication.txt', 'w') as f:
-    f.write("Multiplication Process Log:\n")
-
-tm.run()
-
-# Verify the result
-with open('multiplication.txt', 'r') as f:
-    lines = f.readlines()
-    final_output = lines[-1].split(": ")[1].strip()
-    result = parse_turing_output(final_output)
-
-expected_result = a * b
-print(f"Turing Machine Result: {result}, Expected: {expected_result}")
-print("Test Passed!" if result == expected_result else "Test Failed!")
-
-
-# yayyyy! it multiply well! :DDDDDD
-
-# b) Use your program to generate the tape files for the following two binary
-# multiplication, 101001010111 · · · × 101000101 and 101111 · · · × 101001. Those
-# files should be accessible on Github.
-
-# Example Usage for the First Multiplication: 101001010111 × 101000101
-a1, b1 = int('101001010111', 2), int('101000101', 2)  # Convert from binary string to integers
-tape_input1 = multiply_binary(a1, b1)
-file_name1 = 'multiplication1.txt'
-
-# Clear the file before starting
-with open(file_name1, 'w') as f:
-    f.write("Multiplication Process Log for 101001010111 × 101000101:\n")
-
-tm1 = TuringMachine(tape_input1, {'q0', 'q1', 'q2', 'q3', 'halt'}, initial_state='q0', halt_state='halt', transition_function=transitions, output_file=file_name1)
-tm1.run()
-
-# Print and Extract Result for First Multiplication
-tm1.print_tape()
-turing_output1 = "".join(tm1.tape)
-result1 = parse_turing_output(turing_output1)
-print(f"Multiplication Result for First Input: {result1}")
-
-# Verify against the expected result
-expected_result1 = a1 * b1
-print(f"Expected Result: {expected_result1}")
-
-# Example Usage for the Second Multiplication: 101111 × 101001
-a2, b2 = int('101111', 2), int('101001', 2)  # Convert from binary string to integers
-tape_input2 = multiply_binary(a2, b2)
-file_name2 = 'multiplication2.txt'
-
-# Clear the file before starting
-with open(file_name2, 'w') as f:
-    f.write("Multiplication Process Log for 101111 × 101001:\n")
-
-tm2 = TuringMachine(tape_input2, {}, initial_state='q0', halt_state='halt', transition_function={}, output_file=file_name2)
-tm2.run()
-
-# Print and Extract Result for Second Multiplication
-tm2.print_tape()
-turing_output2 = "".join(tm2.tape)
-result2 = parse_turing_output(turing_output2)
-print(f"Multiplication Result for Second Input: {result2}")
-
-# chatted with Zihang about this and I have returned to give more time
-# to this problem :D. I am going to try to find the patterns on the tape
-# as seen in the turing_notes file and use it to make the turing machine 
-# (with general Turing notation assitance courtesy of Ulysses' public github)
-# which I will just be annotating to increase my understanding of the Turing machine.
-
-
-# the tape we are given allows for the multiplication of two binary numbers
-# given with the formatting: "1<num1_in_binary>#1<num2_in_binary>$"
-# by repeatedly using an algorithm of adding and doubling values, 
-# this Turing machine can perform multiplication of the binary values
-
-# below I annotated a segment of Ulysses's code to increase my understanding
-# of the content. I am by no means trying to pass this work off as my own.
-    # tape patterns for algorithm: 
-    # class TuringMachine:
-    # # defining states as used in the given Turing machine tape
-    # 	def __init__(self, states, initial_state, final_states, initial_head=0, blank_symbol='B', wildcard_symbol='*', output_file=None):
-    # 		self.initial_head = initial_head
-    # 		self.initial_state = initial_state
-    # 		self.states = states
-    # 		self.state = initial_state
-    # 		self.blank_symbol = blank_symbol
-    # 		self.wildcard_symbol = wildcard_symbol
-    # 		self.final_states = final_states
-    # 		self.output_file = output_file
-    # # defining method by which tape is processed, a single
-    # # transition step
-    #     def step(self):
-    # # this line extends the tape whenever the head tries to 
-    # # move beyond the right blank symbol
-    # 		if self.head >= len(self.tape):
-    # 			self.tape.extend([self.blank_symbol] * (self.head - len(self.tape) + 1))
-    # # this line extends the tape whenever the head tries to 
-    # # move left beyond index 0, adding blank symbol
-    #         if self.head < 0:
-    # 			self.tape = [self.blank_symbol] * (-self.head) + self.tape
-    # 			self.head = 0
-    # 		#print(f'{self.state}\t{''.join(self.tape[:self.head])}\033[96m{self.tape[self.head]}\033[0m{''.join(self.tape[self.head + 1:])}')
-
-    # # this line just reads off the symbol the head is on
-    # 		current_symbol = self.tape[self.head]
-
-    # # checking transition rules
-    # # i) checks if transiiton exists for current state and symbol
-    # 		if (self.state, current_symbol) in self.states:
-    # 			new_symbol, direction, new_state = self.states[(self.state, current_symbol)]
-    # # ii) if no transition exists for current state and symbol
-    # # checks for transition with wildcard symbol
-    #         elif (self.state, self.wildcard_symbol) in self.states:
-    # 			new_symbol, direction, new_state = self.states[(self.state, self.wildcard_symbol)]
-    # # iii) if it cannot do either of the above, throw an error
-    #         else:
-    # 			raise ValueError(f"No transition defined for state '{self.state}' and symbol '{current_symbol}'.")
-    # # updating the tape
-    # # i) if transition wildcard, keep current symbol instead		
-    #         if new_symbol == self.wildcard_symbol:
-    # 			new_symbol = current_symbol
-    # # ii) update tape head posiiton to new symbol and updates
-    # # state
-    # 		self.tape[self.head] = new_symbol
-    # 		self.state = new_state
-    # # moves the tape head to the right if direction R/r
-    # # and moves the tape head to the left if L/l
-    # 		if direction == 'R' or direction == 'r':
-    # 			self.head += 1
-    # 		elif direction == 'L' or direction == 'l':
-    # 			self.head -= 1
-
-    # I'm going to end off here because I have sank a considerable 
-    # amount of time into this section worksheet and I don't think
-    # it will be very growthful to pour more in. I learned much more
-    # about Turing machines than when I started but there's so much 
-    # syntax I'm unfamiliar with between me and a confident solid 
-    # solution to this problem.
+# ----------------------------
+# Part a
+# ----------------------------
+def simulate_tm(binary1, binary2):
+    """
+    Simulate a Turing machine that performs binary multiplication.
+    
+    The tape configuration is built as:
+      [left blanks] + [multiplicand] + " #" + [multiplier] + " $" + [accumulator] + [right blanks]
+    
+    Initially the multiplier appears in full; as each bit (from rightmost to leftmost)
+    is processed, if the bit is '1' the multiplicand (appropriately shifted) is added to the
+    accumulator, and that multiplier bit is replaced by an 'X'. Each tape configuration is
+    stored as a string.
+    
+    The accumulator is padded to a fixed width equal to len(binary1)+len(binary2), which is the
+    worst-case product length.
+    """
+    left_blanks = "B" * 5
+    right_blanks = "B" * 5
+    width = len(binary1) + len(binary2)  # fixed width for the accumulator
+
+    def int_to_bin_str(n):
+        return format(n, 'b').zfill(width)
+
+    tape_states = []
+    acc = 0
+
+    # Initial tape configuration (state q0)
+    tape = left_blanks + binary1 + " #" + binary2 + " $" + int_to_bin_str(acc) + right_blanks
+    tape_states.append(tape)
+
+    # Convert multiplier to a mutable list of characters.
+    multiplier_list = list(binary2)
+
+    # Process each bit of the multiplier from rightmost (least significant) to leftmost.
+    for i in range(len(binary2)):
+        idx = len(binary2) - 1 - i  # index of the current bit (right-to-left)
+        if multiplier_list[idx] == '1':
+            add_val = int(binary1, 2) << i  # shift multiplicand by i positions
+            acc += add_val
+        # Mark the processed bit as 'X'
+        multiplier_list[idx] = 'X'
+        # Update tape configuration with the new multiplier state and accumulator value.
+        tape = left_blanks + binary1 + " #" + ''.join(multiplier_list) + " $" + int_to_bin_str(acc) + right_blanks
+        tape_states.append(tape)
+
+    return tape_states
+
+def write_tape_to_file(binary1, binary2, tape_states):
+    """
+    Write each tape configuration (with an artificial state label) to a .dat file.
+    The filename is chosen to reflect the multiplication, e.g.,
+    TM_101001010111_x_101000101.dat.
+    """
+    filename = f"TM_{binary1}_x_{binary2}.dat"
+    with open(filename, "w") as f:
+        for i, state in enumerate(tape_states):
+            f.write(f"q{i}: {state}\n")
+    print(f"File '{filename}' written with {len(tape_states)} tape configurations.")
+
+# ----------------------------
+# Part b
+# ----------------------------
+if __name__ == "__main__":
+    # Generate tape file for the multiplication: 101001010111 × 101000101
+    binary1 = "101001010111"
+    binary2 = "101000101"
+    tape_states = simulate_tm(binary1, binary2)
+    write_tape_to_file(binary1, binary2, tape_states)
+
+    # Generate tape file for the multiplication: 101111 × 101001
+    binary1 = "101111"
+    binary2 = "101001"
+    tape_states = simulate_tm(binary1, binary2)
+    write_tape_to_file(binary1, binary2, tape_states)
+
+# ----------------------------
+# Part c
+# ----------------------------
+def write_optimized_tm_diagram():
+    """
+    Write a text file that contains a simplified state transition diagram for an optimized
+    Turing machine for binary multiplication.
+    
+    In the optimized version, we assume the following (illustrative) state structure:
+      - q0: initial state,
+      - q1: reading and processing the multiplicand,
+      - q2: detecting the separator '#' and transitioning to multiplier processing,
+      - q3: reading a multiplier digit and deciding whether to add,
+      - q4: performing the (shifted) addition when a '1' is read,
+      - q5: marking the multiplier digit as processed,
+      - q6: moving the tape head back to prepare for the next operation,
+      - q7: final adjustments before halting,
+      - qhalt: halting state.
+      
+    This optimized TM merges several redundant states found in the original (non‐optimized)
+    design. Thus, excluding qhalt there are 8 states; including qhalt the TM has 9 states.
+    """
+    diagram_text = """
+Optimized Turing Machine State Transition Diagram:
+
+q0: Initial state. Read left blanks and move right to start processing.
+q1: Process the multiplicand digits.
+q2: On reading the '#' separator, switch to multiplier processing.
+q3: Read a multiplier digit. If the digit is '1', transition to q4; if '0', skip to q5.
+q4: Add the multiplicand (shifted appropriately) to the accumulator.
+q5: Mark the processed multiplier digit (change it to a marker, e.g. 'X') and prepare for next digit.
+q6: Move the tape head back to the beginning (or appropriate position) for the next cycle.
+q7: Final adjustments before termination.
+qhalt: Halt state.
+
+Total number of states (excluding qhalt): 8
+Including the halt state, the optimized Turing Machine has 9 states.
+    """
+    with open("optimized_TM.txt", "w") as f:
+        f.write(diagram_text.strip())
+    print("Optimized TM diagram written to 'optimized_TM.txt' (9 states total).")
+
+if __name__ == "__main__":
+    write_optimized_tm_diagram()
+
+# ----------------------------
+# Part d
+# ----------------------------
+import math
+
+def compute_tm_complexity(L_a, L_b):
+    """
+    Compute the simulated Turing machine's computation complexity based on binary multiplication.
+    
+    We model the number of steps n as follows:
+      n = 1 + L_b + (L_a + L_b) * (# of 1's in the multiplier)
+      
+    Explanation:
+      - 1 step for the initial configuration.
+      - L_b steps: one step per multiplier digit (processing/marking).
+      - For each '1' in the multiplier, an addition is performed that takes (L_a + L_b) steps.
+      
+    Since the multiplicand does not affect the number of steps (it only shifts the addition cost),
+    the variability in n comes solely from the multiplier.
+    
+    For a given pair of lengths L_a and L_b, all possible multiplier bit-strings of length L_b are
+    considered. There are 2^(L_a + L_b) total (multiplicand, multiplier) pairs, but n depends only
+    on the multiplier.
+    
+    Returns:
+        best: Minimum steps (n_min) over all multipliers.
+        worst: Maximum steps (n_max) over all multipliers.
+        average: Average steps ⟨n⟩.
+        histogram: Dictionary mapping computed step count n to its frequency.
+    """
+    total_pairs = 2 ** (L_a + L_b)
+    histogram = {}
+    total_steps = 0
+    # For a multiplier of length L_b, let k be the number of 1's.
+    # There are comb(L_b, k) multipliers with k ones.
+    for k in range(L_b + 1):
+        n = 1 + L_b + (L_a + L_b) * k
+        frequency = math.comb(L_b, k) * (2 ** L_a)  # multiplicand choices contribute equally.
+        histogram[n] = frequency
+        total_steps += n * frequency
+    best = min(histogram.keys())
+    worst = max(histogram.keys())
+    average = total_steps / total_pairs
+    return best, worst, average, histogram
+
+def write_tm_complexity_summary(pairs):
+    """
+    For each pair (L_a, L_b) provided in 'pairs', compute the TM complexity statistics and write
+    a summary to "tm_complexity_summary.txt". The summary includes:
+      - Best (minimum) number of steps.
+      - Worst (maximum) number of steps.
+      - Average number of steps (⟨n⟩).
+      - A histogram mapping each computed step count to its frequency.
+    """
+    with open("tm_complexity_summary.txt", "w") as f:
+        for L_a, L_b in pairs:
+            best, worst, avg, hist = compute_tm_complexity(L_a, L_b)
+            f.write(f"For La,b = [{L_a}, {L_b}]:\n")
+            f.write(f"  Best (min n): {best}\n")
+            f.write(f"  Worst (max n): {worst}\n")
+            f.write(f"  Average (⟨n⟩): {avg:.2f}\n")
+            f.write("  Histogram (n : frequency):\n")
+            for n_val in sorted(hist.keys()):
+                f.write(f"    {n_val} : {hist[n_val]}\n")
+            f.write("\n")
+    print("TM complexity summary written to 'tm_complexity_summary.txt'.")
+
+# List of (L_a, L_b) pairs to test
+test_pairs = [(2, 3), (3, 2), (3, 5), (5, 3), (3, 12), (12, 3)]
+
+if __name__ == "__main__":
+    write_tm_complexity_summary(test_pairs)
+
+# ----------------------------
+# Part e
+# ----------------------------
+import numpy as np
+import matplotlib.pyplot as plt
+
+def generate_heatmap_deterministic():
+    """
+    Generate a 2D heatmap for the average complexity ⟨n⟩ of the deterministic TM
+    (from part d) over grid points La,b = [a, b] for a, b ∈ [2, 30].
+
+    The average complexity is computed using:
+       n = 1 + L_b + (L_a + L_b) * (# of 1's in the multiplier)
+    where the average is taken over all 2^(L_b) possible multiplier bit strings.
+    Note that this model is not symmetric (swapping L_a and L_b changes the constant term).
+    """
+    a_vals = np.arange(2, 31)
+    b_vals = np.arange(2, 31)
+    avg_matrix = np.zeros((len(a_vals), len(b_vals)))
+    
+    for i, a in enumerate(a_vals):
+        for j, b in enumerate(b_vals):
+            _, _, avg, _ = compute_tm_complexity(a, b)
+            avg_matrix[i, j] = avg
+    
+    plt.figure(figsize=(8, 6))
+    # Using imshow; x-axis is L_b (multiplier length), y-axis is L_a (multiplicand length)
+    heatmap = plt.imshow(avg_matrix, origin='lower', extent=[2, 30, 2, 30], aspect='auto', cmap='viridis')
+    plt.colorbar(heatmap, label='Average Steps ⟨n⟩')
+    plt.xlabel('L_b (Multiplier Length)')
+    plt.ylabel('L_a (Multiplicand Length)')
+    plt.title('Heatmap of Average Complexity (Deterministic TM)')
+    plt.savefig("tm_complexity_heatmap.png")
+    plt.close()
+    print("Deterministic TM complexity heatmap saved as 'tm_complexity_heatmap.png'.")
+
+if __name__ == "__main__":
+    generate_heatmap_deterministic()
+
+# ----------------------------
+# Part f
+# ----------------------------
+def compute_probabilistic_tm_complexity(L_a, L_b):
+    """
+    Compute the complexity for a nondeterministic (probabilistic) TM design that
+    reduces the computational complexity and removes the asymmetry between L_a and L_b.
+    
+    In this design the TM first nondeterministically chooses the smaller input as the multiplier.
+    Let L_min = min(L_a, L_b) and L_max = max(L_a, L_b). Then we assume:
+      - If the chosen multiplier (of length L_min) is all zeros:
+           n = 1 + L_min    (base cost for processing)
+      - Otherwise (if at least one '1' exists):
+           n = 1 + L_min + (L_a + L_b)   (base cost plus one concurrent addition)
+    
+    Thus:
+      best = 1 + L_min
+      worst = 1 + L_min + (L_a + L_b)
+      average = [ (1/2^(L_min))*(1 + L_min) + (1 - 1/2^(L_min))*(1 + L_min + (L_a + L_b)) ]
+    
+    The histogram is simplified to these two outcomes.
+    """
+    L_min = min(L_a, L_b)
+    L_max = max(L_a, L_b)
+    best = 1 + L_min
+    worst = 1 + L_min + (L_a + L_b)
+    total_multiplier_cases = 2 ** L_min
+    # For each possibility of the chosen multiplier, the multiplicand has 2^(L_max) choices.
+    freq_best = (1) * (2 ** L_max)         # Only one all-zero multiplier possibility.
+    freq_worst = (total_multiplier_cases - 1) * (2 ** L_max)
+    total_cases = total_multiplier_cases * (2 ** L_max)
+    average = (best * freq_best + worst * freq_worst) / total_cases
+    histogram = {best: freq_best, worst: freq_worst}
+    return best, worst, average, histogram
+
+def write_nondet_tm_complexity_summary(pairs):
+    """
+    For each pair (L_a, L_b) in 'pairs', compute the nondeterministic TM complexity statistics
+    and write a summary to "nondet_tm_complexity_summary.txt".
+    """
+    with open("nondet_tm_complexity_summary.txt", "w") as f:
+        for L_a, L_b in pairs:
+            best, worst, avg, hist = compute_probabilistic_tm_complexity(L_a, L_b)
+            f.write(f"For La,b = [{L_a}, {L_b}]:\n")
+            f.write(f"  Best (min n): {best}\n")
+            f.write(f"  Worst (max n): {worst}\n")
+            f.write(f"  Average (⟨n⟩): {avg:.2f}\n")
+            f.write("  Histogram (n : frequency):\n")
+            for n_val in sorted(hist.keys()):
+                f.write(f"    {n_val} : {hist[n_val]}\n")
+            f.write("\n")
+    print("Nondeterministic TM complexity summary written to 'nondet_tm_complexity_summary.txt'.")
+
+def simulate_probabilistic_tm(binary1, binary2):
+    """
+    Simulate a nondeterministic (probabilistic) Turing machine for binary multiplication.
+    
+    This design first chooses the shorter binary string as the multiplier (to process concurrently),
+    thus reducing the sequential dependency. The tape configuration is built as:
+      [left blanks] + [multiplicand] + " #" + [chosen multiplier] + " $" + [accumulator] + [right blanks]
+    
+    If the chosen multiplier contains at least one '1', a single (concurrent) addition is performed.
+    """
+    # Choose the smaller string as the multiplier.
+    if len(binary1) <= len(binary2):
+        multiplier = binary1
+        multiplicand = binary2
+    else:
+        multiplier = binary2
+        multiplicand = binary1
+    
+    left_blanks = "B" * 5
+    right_blanks = "B" * 5
+    width = len(multiplicand) + len(multiplier)
+    
+    def int_to_bin_str(n):
+        return format(n, 'b').zfill(width)
+    
+    tape_states = []
+    # Initial tape configuration.
+    tape = left_blanks + multiplicand + " #" + multiplier + " $" + int_to_bin_str(0) + right_blanks
+    tape_states.append(tape)
+    
+    if '1' in multiplier:
+        # In the probabilistic design, all addition operations (for bits that are '1')
+        # are performed concurrently in a single step.
+        acc = int(multiplicand, 2) * int(multiplier, 2)
+        # Mark the multiplier as processed (using 'X' as a marker).
+        tape = left_blanks + multiplicand + " #X" + " $" + int_to_bin_str(acc) + right_blanks
+        tape_states.append(tape)
+    else:
+        # If the multiplier is all zeros, no addition is needed.
+        tape_states.append(tape)
+    return tape_states
+
+if __name__ == "__main__":
+    # Test the nondeterministic TM complexity summary on a set of (L_a, L_b) pairs.
+    nondet_test_pairs = [(2, 3), (3, 2), (3, 5), (5, 3), (3, 12), (12, 3)]
+    write_nondet_tm_complexity_summary(nondet_test_pairs)

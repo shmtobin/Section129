@@ -1,0 +1,70 @@
+For La,b = [2, 3]:
+  Best (min n): 4
+  Worst (max n): 19
+  Average (⟨n⟩): 11.50
+  Histogram (n : frequency):
+    4 : 4
+    9 : 12
+    14 : 12
+    19 : 4
+
+For La,b = [3, 2]:
+  Best (min n): 3
+  Worst (max n): 13
+  Average (⟨n⟩): 8.00
+  Histogram (n : frequency):
+    3 : 8
+    8 : 16
+    13 : 8
+
+For La,b = [3, 5]:
+  Best (min n): 6
+  Worst (max n): 46
+  Average (⟨n⟩): 26.00
+  Histogram (n : frequency):
+    6 : 8
+    14 : 40
+    22 : 80
+    30 : 80
+    38 : 40
+    46 : 8
+
+For La,b = [5, 3]:
+  Best (min n): 4
+  Worst (max n): 28
+  Average (⟨n⟩): 16.00
+  Histogram (n : frequency):
+    4 : 32
+    12 : 96
+    20 : 96
+    28 : 32
+
+For La,b = [3, 12]:
+  Best (min n): 13
+  Worst (max n): 193
+  Average (⟨n⟩): 103.00
+  Histogram (n : frequency):
+    13 : 8
+    28 : 96
+    43 : 528
+    58 : 1760
+    73 : 3960
+    88 : 6336
+    103 : 7392
+    118 : 6336
+    133 : 3960
+    148 : 1760
+    163 : 528
+    178 : 96
+    193 : 8
+
+For La,b = [12, 3]:
+  Best (min n): 4
+  Worst (max n): 49
+  Average (⟨n⟩): 26.50
+  Histogram (n : frequency):
+    4 : 4096
+    19 : 12288
+    34 : 12288
+    49 : 4096
+

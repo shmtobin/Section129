@@ -1,5 +1,0 @@
-Multiplication Process Log:
-Initial Tape Input: 1101#111$
-Step 1: 1101#111$
-Step 2: 1101#111$
-Final Tape Output: 1101#111$
