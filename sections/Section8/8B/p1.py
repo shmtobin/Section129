@@ -61,6 +61,7 @@ class GaussQuad(Quad):
         plt.title('Legendre Polynomials')
         plt.legend()
         plt.grid()
+        plt.savefig("plots/p1.png", dpi=300)
         plt.show()
 
 # ----------------------------
