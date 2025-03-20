@@ -71,6 +71,7 @@ def visualize_spin_configurations(probabilities):
         ax.axis('off')
     
     plt.tight_layout()
+    plt.savefig('plots/visualize_spin.png', dpi=300)
     plt.show()
 
 # Compute probabilities for L=4, J=1, B=0, T=1
@@ -120,6 +121,7 @@ def visualize_gibbs_convergence(L=4, beta=1.0, burn_in=1000, num_samples=5000):
         axes[i].imshow(samples[idx], cmap='gray')
         axes[i].set_title(f'Sample {idx+burn_in}')
         axes[i].axis('off')
+    plt.savefig('plots/gibbs_convergence.png', dpi=300)
     plt.show()
 
 visualize_gibbs_convergence()
@@ -132,19 +134,18 @@ def compute_magnetization(lattice):
     """Compute the magnetization of a given spin configuration."""
     return np.sum(lattice) / lattice.size
 
-
 def compute_phase_transition(L, T_values, J=1):
     """Compute the magnetization as a function of temperature."""
     magnetizations = []
     
     for T in T_values:
+        beta = 1 / T
         lattice = initialize_lattice(L)
-        lattice = run_gibbs_sampler(lattice, T, J, steps=5000)  # Burn-in period
+        lattice = gibbs_sampler(lattice, beta, num_iter=5000)  # Burn-in period
         M = compute_magnetization(lattice)
         magnetizations.append(M)
     
     return magnetizations
-
 
 # Parameters
 L = 20  # Lattice size
@@ -154,14 +155,17 @@ magnetizations = compute_phase_transition(L, T_values)
 # Plot results
 plt.figure(figsize=(8, 5))
 plt.plot(T_values, magnetizations, marker='o', linestyle='-', label='Magnetization')
+J = 1  # Default value for the interaction strength
+
+# Calculate critical temperature Tc
 Tc = 2 * J / np.log(1 + np.sqrt(2))
 plt.axvline(Tc, color='r', linestyle='--', label='Critical Temperature Tc')
 plt.xlabel("Temperature")
 plt.ylabel("Magnetization")
 plt.legend()
 plt.title("Phase Transition in 2D Ising Model")
+plt.savefig('plots/phase_transition.png', dpi=300)
 plt.show()
-
 
 # ----------------------------
 # Part f: Magnetization at Different Temperatures
@@ -180,6 +184,7 @@ def visualize_magnetization_vs_temperature(lattice_sizes, T_values, J=1):
     plt.ylabel("Magnetization")
     plt.legend()
     plt.title("Magnetization vs Temperature for Different Lattice Sizes")
+    plt.savefig('plots/magnetization_vs_temperature.png', dpi=300)
     plt.show()
 
 
@@ -208,6 +213,7 @@ def magnetization_vs_field(L, T, B_values, steps=10000, burn_in=5000):
     plt.xlabel("Magnetic Field (B)")
     plt.ylabel("Magnetization")
     plt.legend()
+    plt.savefig('plots/magnetization_vs_field.png', dpi=300)
     plt.show()
 
 # ----------------------------
@@ -234,6 +240,7 @@ def specific_heat(L, T_values, steps=10000, burn_in=5000):
     plt.xlabel("Temperature (T)")
     plt.ylabel("Specific Heat (C_v)")
     plt.legend()
+    plt.savefig('plots/specific_heat.png', dpi=300)
     plt.show()
 
 # ----------------------------

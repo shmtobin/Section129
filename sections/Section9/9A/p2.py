@@ -48,6 +48,7 @@ plt.ylabel('q2 (y-coordinate)')
 plt.title(f'Orbit of the planet (Euler method, e = {e})')
 plt.gca().set_aspect('equal', adjustable='box')
 plt.grid(True)
+plt.savefig('plots/orbit_euler.png', dpi=300)
 plt.show()
 
 # ----------------------------
@@ -103,4 +104,5 @@ plt.ylabel('q2 (y-coordinate)')
 plt.title(f'Orbit of the planet (Symplectic Euler method, e = {e})')
 plt.gca().set_aspect('equal', adjustable='box')
 plt.grid(True)
+plt.savefig('plots/orbit_symplectic_euler.png', dpi=300)
 plt.show()

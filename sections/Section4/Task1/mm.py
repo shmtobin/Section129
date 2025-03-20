@@ -144,7 +144,7 @@ plt.ylabel("Normalized Time")
 plt.title("Time Complexity Analysis (5 Trials per Measurement)")
 plt.legend()
 plt.grid(True)
-plt.savefig(f'Plots/naive_mm_time_complexity.png')
+plt.savefig(f'Plots/naive_mm_time_complexity.png', dpi=300)
 plt.show()
 
 # Q2) Strassen’s algorithm
@@ -295,7 +295,7 @@ plt.ylabel("Normalized Time")
 plt.title("Time Complexity: Naive vs. Strassen's Algorithm")
 plt.legend()
 plt.grid(True)
-plt.savefig(f'Plots/naive_v_strassen_comparison.png')
+plt.savefig(f'Plots/naive_v_strassen_comparison.png', dpi=300)
 plt.show()
 
 

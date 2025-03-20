@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 
 def draw_cnn_graph():
-    # Create a directed graph
+    # Create a directed
     G = nx.DiGraph()
 
     # Add nodes representing the layers and operations
@@ -44,6 +44,7 @@ def draw_cnn_graph():
     plt.figure(figsize=(10, 7))
     nx.draw(G, pos, with_labels=True, node_size=3000, node_color='skyblue', font_size=10, font_weight='bold', arrows=True)
     plt.title("Forward Computational Graph for a 3-layer CNN")
+    plt.savefig(f'plots/cnn_graph_p2.png', dpi=300)
     plt.show()
 
 # Call the function to draw the graph
@@ -157,6 +158,7 @@ def visualize_filters(conv_layer):
         axes[i].set_title(f'Filter {i+1}')
     
     plt.suptitle('Convolutional Filters')
+    plt.savefig(f'plots/conv_filters_p2.png', dpi=300)
     plt.show()
 
 # Visualize the filters in the convolutional layer
@@ -172,6 +174,7 @@ def visualize_feature_maps(feature_maps):
         axes[i].set_title(f'Feature Map {i+1}')
     
     plt.suptitle('Feature Maps')
+    plt.savefig(f'plots/feature_maps_p2.png', dpi=300)
     plt.show()
 
 # Forward pass to get the feature maps
@@ -191,6 +194,7 @@ def visualize_activated_feature_maps(activated_feature_maps):
         axes[i].set_title(f'Activated Feature Map {i+1}')
     
     plt.suptitle('Activated Feature Maps')
+    plt.savefig(f'plots/activated_feature_maps_p2.png', dpi=300)
     plt.show()
 
 # Forward pass to get the activated feature maps
@@ -205,6 +209,7 @@ def visualize_fc_output(fc_output):
     plt.title('Fully Connected Layer Output')
     plt.xlabel('Class')
     plt.ylabel('Output Value')
+    plt.savefig(f'plots/fc_output_p2.png', dpi=300)
     plt.show()
 
 # Forward pass to get the fully connected layer output
@@ -219,6 +224,7 @@ def visualize_gradients(gradients):
     plt.title('Gradients during Backpropagation')
     plt.xlabel('Parameter')
     plt.ylabel('Gradient Value')
+    plt.savefig(f'plots/gradients_p2.png', dpi=300)
     plt.show()
 
 # Backward pass to get the gradients

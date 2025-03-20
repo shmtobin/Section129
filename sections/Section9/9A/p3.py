@@ -2,6 +2,7 @@
 # Part a
 # ----------------------------
 
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
@@ -57,15 +58,20 @@ plt.ylabel("H(θ)")
 plt.legend()
 
 # Save the plot as an image
-plt.savefig("gradient_descent_plot.png")
+plt.savefig(f"plots/gradient_descent_plot.png")
+plt.show()
 
 # ----------------------------
 # Creating a video of the descent steps
 # ----------------------------
 
+# Ensure the directory for frames exists
+frame_dir = "plots"
+os.makedirs(frame_dir, exist_ok=True)
+
 # Initialize the VideoWriter
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
-out = cv2.VideoWriter('gradient_descent_video.avi', fourcc, 10.0, (640, 480))
+out = cv2.VideoWriter(f'plots/gradient_descent_video.avi', fourcc, 10.0, (640, 480))
 
 # For each initial guess, perform gradient descent and save frames
 for theta_init in initial_guesses:
@@ -81,13 +87,20 @@ for theta_init in initial_guesses:
         plt.legend()
         
         # Save the frame
-        plt.savefig('temp_frame.png')
-        frame = cv2.imread('temp_frame.png')
-        out.write(frame)  # Write the frame to the video
+        frame_path = os.path.join(frame_dir, "temp_frame.png")
+        plt.savefig(frame_path)
+        frame = cv2.imread(frame_path)
+        
+        if frame is not None:
+            out.write(frame)
+        else:
+            print(f"Warning: Frame at {frame_path} could not be loaded.")
+        
         plt.close()
 
 # Release the video writer
 out.release()
+
 
 # ----------------------------
 # Part b
@@ -156,7 +169,8 @@ plt.ylabel("H(θ)")
 plt.legend()
 
 # Save the plot as an image
-plt.savefig("metropolis_hastings_plot.png")
+plt.savefig(f"plots/metropolis_hastings_plot.png")
+plt.show()
 
 # ----------------------------
 # Part c
@@ -226,5 +240,5 @@ plt.ylabel("H(θ)")
 plt.legend()
 
 # Save the plot as an image
-plt.savefig("simulated_annealing_plot.png")
-plt.plot()
+plt.savefig(f"plots/simulated_annealing_plot.png")
+plt.show()

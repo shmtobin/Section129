@@ -132,6 +132,7 @@ if __name__ == '__main__':
     plt.title('Time Complexity of Hamiltonian Construction')
     plt.grid(True)
     plt.legend()
+    plt.savefig(f'Plots/hamiltonian_time_complexity.png', dpi=300)
     plt.show()
     
     # Use QR diagonalization on the test Hamiltonian
@@ -268,6 +269,7 @@ def plot_green_function(N, J):
     plt.title(f"Green's Function for one-magnon Hamiltonian (N = {N})")
     plt.legend()
     plt.grid(True)
+    plt.savefig(f'Plots/greens_function.png', dpi=300)
     plt.show()
 
 # ----------------------------
@@ -327,6 +329,7 @@ def plot_magnon_dispersion(N, J):
     plt.title(f'Magnon Dispersion Relation (N = {N})')
     plt.legend()
     plt.grid(True)
+    plt.savefig(f'Plots/magnon_dispersion.png', dpi=300)
     plt.show()
 
 # ----------------------------

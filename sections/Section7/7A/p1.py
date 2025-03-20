@@ -1,6 +1,5 @@
 # 7A P1
 
-
 import json
 import math
 import numpy as np
@@ -91,6 +90,7 @@ def run_bayesian_inference_all():
     for ax, dataset_file in zip(axs, dataset_files):
         bayesian_inference_coin(dataset_file, ax)
     fig.tight_layout()
+    plt.savefig('plots/bayesian_inference_combined.png', dpi=300)
     plt.show()
 
 # ----------------------------
@@ -143,6 +143,7 @@ def stirling_approximation_plot():
     axs[1].set_ylabel('Difference')
 
     fig.tight_layout()
+    plt.savefig(f'plots/stirling_1b.png', dpi=300)
     plt.show()
 
 # ----------------------------
@@ -249,7 +250,10 @@ def plot_bootstrap_histograms(bootstrap_results, p_full, dataset_name):
     
     fig.suptitle(f'Bootstrap Histograms for {dataset_name}', fontsize=16)
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    base_name = dataset_name.replace('.json', '')
+    plt.savefig(f'plots/histograms_{base_name}.png', dpi=300)
     plt.show()
+    return sample_sizes_sorted, exp_boot, var_boot
     
     return sample_sizes_sorted, exp_boot, var_boot
 
@@ -291,6 +295,8 @@ def plot_bootstrap_summary(sample_sizes, exp_boot, var_boot, p_full, dataset_nam
     
     fig.suptitle(f'Bootstrap Summary for {dataset_name}', fontsize=16)
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    base_name = dataset_name.replace('.json', '')
+    plt.savefig(f'plots/bootstrap_summary_{base_name}.png', dpi=300)
     plt.show()
 
 def run_bootstrap_analysis():

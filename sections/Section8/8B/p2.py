@@ -65,6 +65,7 @@ def plot_heatmaps(f, true_integral, title):
         plt.xlabel("log10(N)")
         plt.ylabel("k")
         plt.title(f"{method_name} - {title}")
+        plt.savefig(f'plots/plot_heatmaps.png', dpi=300)
         plt.show()
 
 # ----------------------------

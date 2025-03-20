@@ -66,6 +66,7 @@ def plot_vacuum_fit(data, lambda_hat, bins=50):
     plt.ylabel('Probability Density')
     plt.title('Vacuum Decay Data and Exponential Fit')
     plt.legend()
+    plt.savefig(f'plots/vacuum_decay_exponential.png', dpi=300)
     plt.show()
 
 # =============================================================================
@@ -140,6 +141,7 @@ def plot_cavity_fit(data, best_params, bins=50):
     plt.ylabel('Probability Density')
     plt.title('Cavity Decay Data and Mixture Model Fit')
     plt.legend()
+    plt.savefig(f'plots/cavity_decay_mixture.png', dpi=300)
     plt.show()
 
 # =============================================================================
